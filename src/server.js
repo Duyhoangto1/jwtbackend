@@ -4,8 +4,9 @@ import dotenv from 'dotenv';
 import viewEngine from './configs/viewEngine.js';
 import webRouter from './routers/web.js';
 
-const PORT = process.env.PORT || 8080;
+
 const app = express();
+const PORT = process.env.PORT || 8080;
 dotenv.config();
 //config view engine
 viewEngine(app);
