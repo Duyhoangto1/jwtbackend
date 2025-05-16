@@ -1,18 +1,25 @@
 import express from 'express';
 import dotenv from 'dotenv';
-
-import viewEngine from './configs/viewEngine.js';
+import bodyParser from 'body-parser'; // Optional if using express's built-in
+import viewEngine from './config/viewEngine.js';
 import webRouter from './routers/web.js';
-
-
+import connectDB
+ from './config/connectDB.js';
 const app = express();
-const PORT = process.env.PORT || 8080;
 dotenv.config();
-//config view engine
+const port = process.env.PORT || 8080;
+
+// ✅ Config body parser before routes
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Config view engine and routes
 viewEngine(app);
-//init web router
+
+// Connect to database
+connectDB();
 webRouter(app);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Backend Nodejs App listening on port ${port}`);
 });
