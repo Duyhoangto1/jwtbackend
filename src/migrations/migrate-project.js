@@ -21,9 +21,9 @@ module.exports = {
       customerId: {
         type: Sequelize.INTEGER,
       },
-      createTable: {
+      createdAt: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,

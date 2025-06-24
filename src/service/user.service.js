@@ -1,9 +1,10 @@
-import pool from '../config/database.js';
-import bcrypt from 'bcrypt';
-import db from '../models/index.js';
+import pool from "../config/database.js";
+import bcrypt from "bcrypt";
+import db from "../models/index.js";
+import { where } from "sequelize";
 export const hashPassword = async (password) => {
-    const saltRounds = 10;
-    return await bcrypt.hash(password, saltRounds);
+  const saltRounds = 10;
+  return await bcrypt.hash(password, saltRounds);
 };
 
 // export const registerUser = async (username, email, password) => {
@@ -19,20 +20,18 @@ export const hashPassword = async (password) => {
 //     }
 // };
 export const registerUser = async (username, email, password) => {
-      const hashed = await hashPassword(password);
-    try {
-        
-       await db.User.create({
-            username: username,
-            email: email,
-            password: hashed
-        });
-        return { message: 'User registered successfully' };
-    } catch (err) {
-        throw err;
-    }
+  const hashed = await hashPassword(password);
+  try {
+    await db.User.create({
+      username: username,
+      email: email,
+      password: hashed,
+    });
+    return { message: "User registered successfully" };
+  } catch (err) {
+    throw err;
+  }
 };
-
 
 // export const getUserList = async () => {
 //     try {
@@ -45,14 +44,43 @@ export const registerUser = async (username, email, password) => {
 //     }
 // };
 export const getUserList = async () => {
-    try {
-        const users = await db.User.findAll({
-            attributes: ['id', 'username', 'email']
-        });
-        return users;
-    } catch (err) {
-        throw err;
-    }
+  // test relationship
+  //   let newuser = await db.User.findOne({
+  //     where: {
+  //       id: 1,
+  //       raw: true,
+  //     },
+  //   });
+  //   console.log("check new user ", newuser);
+  try {
+    let newuser = await db.User.findOne({
+      where: { id: 1 },
+      attributes: ["id", "username", "email"], // chỉ lấy trường có thật
+      include: {
+        model: db.Group,
+        attributes: ["id", "name", "description"], // chỉ lấy trường có thật
+      },
+      raw: true,
+      nest: true,
+    });
+
+    let role = await db.Role.findAll({
+      include: {
+        model: db.Group,
+        where: { id: 1 },
+      },
+      raw: true,
+      nest: true,
+    });
+    console.log("check new user ", newuser);
+    console.log("check new role ", role);
+    const users = await db.User.findAll({
+      attributes: ["id", "username", "email"],
+    });
+    return users;
+  } catch (err) {
+    throw err;
+  }
 };
 
 // export const getUserById = async (id) => {
@@ -67,14 +95,14 @@ export const getUserList = async () => {
 //     }
 // };
 export const getUserById = async (id) => {
-    try {
-        const user = await db.User.findByPk(id, {
-            attributes: ['id', 'username', 'email']
-        });
-        return user || null;
-    } catch (err) {
-        throw err;
-    }
+  try {
+    const user = await db.User.findByPk(id, {
+      attributes: ["id", "username", "email"],
+    });
+    return user || null;
+  } catch (err) {
+    throw err;
+  }
 };
 // export const updateUser = async (id, username, email) => {
 //     try {
@@ -101,24 +129,21 @@ export const getUserById = async (id) => {
 // };
 
 export const updateUser = async (id, username, email) => {
-    try {
-        const result = await db.User.update(
-            { username, email },
-            { where: { id } }
-        );
-        return result;
-    } catch (err) {
-        throw err;
-    }
+  try {
+    const result = await db.User.update({ username, email }, { where: { id } });
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const deleteUser = async (id) => {
-    try {
-        const result = await db.User.destroy({
-            where: { id }
-        });
-        return result;
-    } catch (err) {
-        throw err;
-    }
+  try {
+    const result = await db.User.destroy({
+      where: { id },
+    });
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };

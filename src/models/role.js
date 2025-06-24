@@ -1,4 +1,5 @@
 "use strict";
+const { model } = require("mongoose");
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Role extends Model {
@@ -9,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Role.belongsToMany(models.Group, { through: models.Group_Role });
     }
   }
   Role.init(

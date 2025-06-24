@@ -15,9 +15,9 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
       },
-      createTable: {
+      createdAt: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
