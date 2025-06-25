@@ -1,34 +1,35 @@
-import express from 'express';
-import * as homecontroller from '../controller/homeController.js';
-
-
+import express from "express";
+import * as homecontroller from "../controller/homeController.js";
+import apiController from "../controller/apiController.js";
 const router = express.Router();
 
 /**
- * 
- * @param {*} app 
+ *
+ * @param {*} app
  */
 const webRouter = (app) => {
-    // Define the home route
-    router.get('/', homecontroller.handleHome);
- router.get('/user', homecontroller.handleUser);
- router.get('/login', homecontroller.handleLogin);
-router.get('/register', homecontroller.handleRegisterPage);
-router.post('/register', homecontroller.handleRegister);
-router.get('/user/edit/:id', homecontroller.handleEditUserPage);
-router.post('/user/edit/:id', homecontroller.handleEditUser);
-    // Define the about route
-    router.post('/user/delete/:id', homecontroller.handleDeleteUser);
-    router.get('/about', (req, res) => {
-        res.render('about');
-    });
+  // Define the home route
+  router.get("/", homecontroller.handleHome);
+  router.get("/user", homecontroller.handleUser);
+  router.get("/login", homecontroller.handleLogin);
+  router.get("/register", homecontroller.handleRegisterPage);
+  router.post("/register", homecontroller.handleRegister);
+  router.get("/user/edit/:id", homecontroller.handleEditUserPage);
+  router.post("/user/edit/:id", homecontroller.handleEditUser);
+  // Define the about route
+  router.post("/user/delete/:id", homecontroller.handleDeleteUser);
+  router.get("/about", (req, res) => {
+    res.render("about");
+  });
+  //rest api
+  //get post  put delete
+  router.get("/api/test-api", apiController.testApi);
+  // Define the contact route
+  router.get("/contact", (req, res) => {
+    res.render("contact");
+  });
 
-    // Define the contact route
-    router.get('/contact', (req, res) => {
-        res.render('contact');
-    });
-
-    // Use the router in the app
-    return app.use('/', router);
-}
+  // Use the router in the app
+  return app.use("/", router);
+};
 export default webRouter;
