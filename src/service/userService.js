@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import db from "../models/index.js";
+import { raw } from "body-parser";
 
 export const hashPassword = async (password) => {
   const saltRounds = 10;
@@ -71,7 +72,7 @@ export const loginUser = async (rawdata) => {
       },
     };
   } catch (err) {
-    console.error("[11:15 PM +07, 25/06/2025] Login error:", err);
+    console.error(" Login error:", err);
     return {
       EM: "Something went wrong in service...",
       EC: -2,
@@ -83,7 +84,7 @@ export const loginUser = async (rawdata) => {
 export const getUserList = async () => {
   try {
     const users = await db.User.findAll({
-      attributes: ["id", "username", "email"],
+      attributes: ["id", "username", "email", "phone"],
     });
     return users;
   } catch (err) {
@@ -94,7 +95,15 @@ export const getUserList = async () => {
 export const getUserById = async (id) => {
   try {
     const user = await db.User.findByPk(id, {
-      attributes: ["id", "username", "email"],
+      attributes: [
+        "id",
+        "username",
+        "email",
+        "phone",
+        "address",
+        "sex",
+        "groupId",
+      ],
     });
     return user || null;
   } catch (err) {
@@ -102,9 +111,20 @@ export const getUserById = async (id) => {
   }
 };
 
-export const updateUser = async (id, username, email) => {
+export const updateUser = async (
+  id,
+  username,
+  email,
+  phone,
+  sex,
+  address,
+  groupId
+) => {
   try {
-    const result = await db.User.update({ username, email }, { where: { id } });
+    const result = await db.User.update(
+      { username, email, phone, sex, address, groupId },
+      { where: { id } }
+    );
     return result;
   } catch (err) {
     throw err;
@@ -117,5 +137,33 @@ export const deleteUser = async (id) => {
     return result;
   } catch (err) {
     throw err;
+  }
+};
+
+export const createUser = async (rawdata) => {
+  const isEmailExist = await checkEmail(rawdata.email);
+  if (isEmailExist) {
+    return { EC: 1, EM: "User Email already exists", data: null };
+  }
+  const isPhoneExist = await checkPhone(rawdata.phone);
+  if (isPhoneExist) {
+    return { EC: 1, EM: "User Phone already exists", data: null };
+  }
+  const hashed = await hashPassword(rawdata.password);
+
+  try {
+    await db.User.create({
+      email: rawdata.email,
+      phone: rawdata.phone,
+      username: rawdata.username,
+      password: hashed,
+      sex: rawdata.sex,
+      address: rawdata.address,
+      groupId: rawdata.groupId,
+    });
+    return { EM: "User registered successfully", EC: 0 };
+  } catch (err) {
+    console.error(" DB error:", err);
+    return { EM: "Something went wrong in service...", EC: -2 };
   }
 };
