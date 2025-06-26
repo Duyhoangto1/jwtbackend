@@ -1,7 +1,9 @@
 import bcrypt from "bcrypt";
+require("dotenv").config();
+import { createJWT } from "../middleware/JWTActions.js";
 import db from "../models/index.js";
 import { raw } from "body-parser";
-
+import { getGroupWithRole } from "./jwtService.js";
 export const hashPassword = async (password) => {
   const saltRounds = 10;
   return await bcrypt.hash(password, saltRounds);
@@ -34,6 +36,7 @@ export const registerUser = async (rawdata) => {
       phone: rawdata.phone,
       username: rawdata.username,
       password: hashed,
+      groupId: 5,
     });
     return { EM: "User registered successfully", EC: 0 };
   } catch (err) {
@@ -61,6 +64,13 @@ export const loginUser = async (rawdata) => {
         data: null,
       };
     }
+    let roles = await getGroupWithRole(user);
+    let payload = {
+      email: user.email,
+      roles,
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    };
+    let token = createJWT(payload);
     return {
       EM: "Login successful",
       EC: 0,
@@ -69,6 +79,8 @@ export const loginUser = async (rawdata) => {
         username: user.username,
         email: user.email,
         phone: user.phone,
+        access_token: token,
+        data: roles,
       },
     };
   } catch (err) {

@@ -68,6 +68,10 @@ const handleLogin = async (req, res) => {
       });
     }
     const data = await loginUser({ email, password }); // Đúng cú pháp
+    if (data && data.DT && data.DT.access_token) {
+      res.cookie("jwt", data.data.access_token, { httpOnly: true });
+    }
+
     if (!data || data.EC !== 0) {
       return res.status(401).json({
         EC: 1,
@@ -248,6 +252,7 @@ const handleCreateUser = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   testApi,
   handleRegister,
